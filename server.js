@@ -28,6 +28,44 @@ db.serialize(() => {
     // აქ შეგიძლია გქონდეს შენი ცხრილების შექმნის ლოგიკა
 });
 
+// 🟢 რეგისტრაციის როუტი
+app.post('/api/register', (req, res) => {
+    const { username, password } = req.body;
+    
+    // პაროლის ჰეშირება და ბაზაში შენახვა
+    bcrypt.hash(password, 10, (err, hash) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: 'სერვერის შეცდომა' });
+        }
+        
+        db.run(`INSERT INTO users (username, password) VALUES (?, ?)`, [username, hash], function(err) {
+            if (err) {
+                return res.status(400).json({ success: false, message: 'მომხმარებელი უკვე არსებობს' });
+            }
+            res.json({ success: true, message: 'რეგისტრაცია წარმატებულია!' });
+        });
+    });
+});
+
+// 🟢 შესვლის (ლოგინის) როუტი
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+
+    db.get(`SELECT * FROM users WHERE username = ?`, [username], (err, user) => {
+        if (err || !user) {
+            return res.status(400).json({ success: false, message: 'არასწორი სახელი ან პაროლი' });
+        }
+
+        bcrypt.compare(password, user.password, (err, result) => {
+            if (result) {
+                res.json({ success: true, message: 'შესვლა წარმატებულია!' });
+            } else {
+                res.status(400).json({ success: false, message: 'არასწორი სახელი ან პაროლი' });
+            }
+        });
+    });
+});
+
 // სოკეტების კავშირი
 io.on('connection', (socket) => {
     console.log('მომხმარებელი დაუკავშირდა');
