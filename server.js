@@ -24,15 +24,19 @@ const db = new sqlite3.Database('./messenger.db', (err) => {
     else console.log('✅ SQLite ბაზა მიერთებულია');
 });
 
+// ცხრილის ავტომატურად შექმნა
 db.serialize(() => {
-    // აქ შეგიძლია გქონდეს შენი ცხრილების შექმნის ლოგიკა
+    db.run(`CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT
+    )`);
 });
 
 // 🟢 რეგისტრაციის როუტი
 app.post('/api/register', (req, res) => {
     const { username, password } = req.body;
     
-    // პაროლის ჰეშირება და ბაზაში შენახვა
     bcrypt.hash(password, 10, (err, hash) => {
         if (err) {
             return res.status(500).json({ success: false, message: 'სერვერის შეცდომა' });
