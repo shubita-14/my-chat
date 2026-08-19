@@ -15,6 +15,10 @@ const io = new Server(server);
 app.use(express.json());
 app.use(express.static('__dirname'));
 
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 // SQLite ბაზა
 const db = new sqlite3.Database('./messenger.db', (err) => {
     if (err) console.error('DB Error:', err);
