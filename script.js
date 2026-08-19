@@ -11,7 +11,7 @@ async function register() {
     if (!u || !p) return alert('შეავსეთ ყველა ველი!');
 
     try {
-        const res = await fetch('/register', {
+        const res = await fetch('/api/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: u, password: p })
@@ -22,7 +22,7 @@ async function register() {
         if (res.ok && data.success) {
             alert('✅ წარმატებით დარეგისტრირდით! ახლა დააჭირეთ "შესვლა"-ს.');
         } else {
-            alert('❌ შეცდომა: ' + (data.error || 'ვერ დარეგისტრირდა'));
+            alert('❌ შეცდომა: ' + (data.message || 'ვერ დარეგისტრირდა'));
         }
     } catch (err) {
         alert('❌ რეგისტრაციის შეცდომა: ' + err.message);
@@ -37,7 +37,7 @@ async function login() {
     if (!u || !p) return alert('შეავსეთ ყველა ველი!');
 
     try {
-        const res = await fetch('/login', {
+        const res = await fetch('/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: u, password: p })
@@ -46,7 +46,7 @@ async function login() {
         const data = await res.json();
         
         if (res.ok && data.success) {
-            currentUser = data.username;
+            currentUser = u;
             
             const userDisplay = document.getElementById('current-user-display');
             if (userDisplay) {
@@ -56,7 +56,7 @@ async function login() {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('chat-screen').style.display = 'flex';
         } else {
-            alert('❌ შესვლის შეცდომა: ' + (data.error || 'არასწორი მონაცემები'));
+            alert('❌ შესვლის შეცდომა: ' + (data.message || 'არასწორი მონაცემები'));
         }
     } catch (err) {
         alert('❌ შესვლის შეცდომა: ' + err.message);
